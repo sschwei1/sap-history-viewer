@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,4 +5,97 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model food {
+  id           Int            @id @unique(map: "food_id_uindex")
+  name         String         @db.VarChar(128)
+  description  String?        @db.VarChar(256)
+  imageSrc     String?        @db.VarChar(256)
+  stageId      Int
+  stage        stage          @relation(fields: [stageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "food_stage_id_fk")
+  petWithStats petWithStats[]
+
+  @@index([stageId], map: "food_stage_id_fk")
+}
+
+model game {
+  id               Int                @id @unique(map: "game_id_uindex")
+  roundEnded       Int
+  healthLeft       Int
+  win              Boolean
+  petWentForId     Int?
+  pet              pet?               @relation(fields: [petWentForId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "game_pet_id_fk")
+  petWithStatsGame petWithStatsGame[]
+
+  @@index([petWentForId], map: "game_pet_id_fk")
+}
+
+model pack {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(128)
+  petPack petPack[]
+}
+
+model pet {
+  id           Int            @id @default(autoincrement())
+  name         String         @db.VarChar(128)
+  baseAttack   Int?
+  baseHealth   Int?
+  skillLvl1    String?        @db.VarChar(256)
+  skillLvl2    String?        @db.VarChar(256)
+  skillLvl3    String?        @db.VarChar(256)
+  imageSrc     String?        @db.VarChar(256)
+  stageId      Int
+  stage        stage          @relation(fields: [stageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pet_stage_id_fk")
+  game         game[]
+  petPack      petPack[]
+  petWithStats petWithStats[]
+
+  @@index([stageId], map: "pet_stage_id_fk")
+}
+
+model petPack {
+  petId  Int
+  packId Int
+  pack   pack @relation(fields: [packId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petpack_pack_id_fk")
+  pet    pet  @relation(fields: [petId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petpack_pet_id_fk")
+
+  @@id([petId, packId])
+  @@unique([petId, packId], map: "petPack_petId_packId")
+  @@index([packId], map: "petpack_pack_id_fk")
+}
+
+model petWithStats {
+  id               Int                @id @unique(map: "petWithStats_id_uindex")
+  petId            Int
+  attack           Int
+  health           Int
+  level            Int
+  foodId           Int?
+  food             food?              @relation(fields: [foodId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petwithstats_food_id_fk")
+  pet              pet                @relation(fields: [petId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petwithstats_pet_id_fk")
+  petWithStatsGame petWithStatsGame[]
+
+  @@index([foodId], map: "petwithstats_food_id_fk")
+  @@index([petId], map: "petwithstats_pet_id_fk")
+}
+
+model petWithStatsGame {
+  petWithStatsId Int
+  gameId         Int
+  game           game         @relation(fields: [gameId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petwithstatsgame_game_id_fk")
+  petWithStats   petWithStats @relation(fields: [petWithStatsId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petwithstatsgame_petwithstats_id_fk")
+
+  @@id([petWithStatsId, gameId])
+  @@unique([petWithStatsId, gameId], map: "petWithStatsGame_key")
+  @@index([gameId], map: "petwithstatsgame_game_id_fk")
+}
+
+model stage {
+  id             Int    @id @unique(map: "stage_id_uindex")
+  name           String @db.VarChar(128)
+  roundAvailable Int
+  food           food[]
+  pet            pet[]
 }
