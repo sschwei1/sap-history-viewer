@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function fillTable(tableName) {
   await prisma[tableName].createMany({
-    data: tableData[tableName + 'Table'],
+    data: tableData[tableName + '_table'],
     skipDuplicates: true
   }).then(res => {
     console.log(`[${tableName}] Successfully added entries!`, res)

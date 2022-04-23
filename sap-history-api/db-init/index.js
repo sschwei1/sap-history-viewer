@@ -19,5 +19,5 @@ async function fillTables(tables) {
   }
 }
 
-const tables = ['pack', 'tier', 'food', 'foodPack', 'pet', 'petPack'];
+const tables = ['pack', 'tier', 'food', 'food_pack', 'pet', 'pet_pack'];
 fillTables(tables).then();

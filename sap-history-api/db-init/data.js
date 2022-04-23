@@ -1,12 +1,12 @@
 // objects generated from public api and mapped for my usage
 // -> https://superauto.pet/api.json
 
-const packTable = [
+const pack_table = [
   { id: 1, name: 'Standard' },
   { id: 2, name: 'Expansion 1' }
 ];
 
-const tierTable = [
+const tier_table = [
   { id: 1, name: 'Tier 1', roundAvailable: 1 },
   { id: 2, name: 'Tier 2', roundAvailable: 3 },
   { id: 3, name: 'Tier 3', roundAvailable: 5 },
@@ -16,7 +16,7 @@ const tierTable = [
   { id: 7, name: 'Summon', roundAvailable: null },
 ];
 
-const foodTable = [
+const food_table = [
   { id: 1, name: 'Apple', description: 'Give an animal +1/+1.', tierId: 1 },
   { id: 2, name: 'Honey', description: 'Give an animal Honey Bee.', tierId: 1 },
   { id: 3, name: 'Cupcake', description: 'Give an animal +3/+3 until end of battle.', tierId: 2 },
@@ -37,7 +37,7 @@ const foodTable = [
   { id: 18, name: 'Peanut', description: 'Gives an animal Peanut Attack' }
 ];
 
-const foodPackTable = [
+const food_pack_table = [
   { foodId: 1, packId: 1 },
   { foodId: 2, packId: 1 },
   { foodId: 3, packId: 1 },
@@ -74,7 +74,7 @@ const foodPackTable = [
   { foodId: 17, packId: 2 },
 ];
 
-const petTable = [
+const pet_table = [
   { id: 1, name: 'Ant', baseAttack: 2, baseHealth: 1, skillLvl1: 'Faint: Give a random friend +2/+1', skillLvl2: 'Faint: Give a random friend +4/+2', skillLvl3: 'Faint: Give a random friend +6/+3', tierId: 1},
   { id: 2, name: 'Beaver', baseAttack: 2, baseHealth: 2, skillLvl1: 'Sell: Give two random friends +1 health', skillLvl2: 'Sell: Give two random friends +2 health', skillLvl3: 'Sell: Give two random friends +3 health', tierId: 1},
   { id: 3, name: 'Beetle', baseAttack: 2, baseHealth: 3, skillLvl1: 'Eat shop food: Give shop animals +1 health', skillLvl2: 'Eat shop food: Give shop animals +2 health', skillLvl3: 'Eat shop food: Give shop animals +3 health', tierId: 1},
@@ -166,7 +166,7 @@ const petTable = [
   { id: 89, name: 'Bee', baseAttack: 1, baseHealth: 1, tierId: 7}
 ];
 
-const petPackTable = [
+const pet_pack_table = [
   { petId: 1, packId: 1 },
   { petId: 1, packId: 2 },
   { petId: 2, packId: 1 },
@@ -302,10 +302,10 @@ const petPackTable = [
 ];
 
 module.exports = {
-  packTable,
-  tierTable,
-  foodTable,
-  foodPackTable,
-  petTable,
-  petPackTable
+  pack_table,
+  tier_table,
+  food_table,
+  food_pack_table,
+  pet_table,
+  pet_pack_table
 }

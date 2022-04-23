@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "initDb": "node db-init/index.js"
+    "initDb": "node db-init/index.js",
+    "genKeys": "node token-gen/index.js"
   },
   "author": "",
   "license": "ISC",
