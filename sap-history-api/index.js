@@ -105,10 +105,14 @@ router.put('/api/wAuth/game', async (ctx) => {
 app
   .use(bodyParser())
   .use(router.routes())
-  .use(router.allowedMethods())
-  .use(proxy({
+  .use(router.allowedMethods());
+
+if(process.env.ENVIRONMENT === 'dev') {
+  console.log('Adding proxy...');
+  app.use(proxy({
     host: process.env.PROXY
   }));
+}
 
 
 console.log('Starting server...');
