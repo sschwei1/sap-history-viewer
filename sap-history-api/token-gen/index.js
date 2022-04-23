@@ -41,23 +41,56 @@ Promise.all(userNames.map(async userName => {
   const date = new Date();
   date.setUTCDate(date.getUTCDate() + 1);
 
+  const user = await prisma.access_token.findFirst({
+    where: {
+      name: userName
+    }
+  });
+
   return {
+    id: user?.id,
     token: await generateToken(),
     name: userName,
     validUntil: date
   };
-})).then(entries => {
-  // so code highlighting wont complain
-  entries = entries.map(e => ({
-    token: e.token,
-    name: e.name,
-    validUntil: e.validUntil
-  }));
+})).then(async entries => {
+  const newUser = entries.filter(el => !el.id)
+    .map(e => ({
+      token: e.token,
+      name: e.name,
+      validUntil: e.validUntil
+    }));
 
-  prisma.access_token.createMany({data: entries}).then(res => {
-    console.log(`[access_token] Successfully created ${res.count} tokens!`);
-    console.log(entries.map(el => `${el.token} => ${el.name}`).join('\n'));
+  const existingUser = entries.filter(el => el.id)
+    .map(el => ({
+      id: el.id,
+      token: el.token,
+      name: el.name,
+      validUntil: el.validUntil
+    }));
+
+  await prisma.access_token.createMany({data: newUser}).then(res => {
+    console.log(`[access_token] Successfully created ${res.count} new tokens!`);
+    console.log('----------');
+    console.log(newUser.map(el => `${el.token} => ${el.name}`).join('\n') + '\n');
   }).catch(ex => {
     console.log(`[access_token] Failed to add entries!`, ex);
   });
+
+  console.log('[access_token] Updated tokens');
+  console.log('----------');
+  for(const user of existingUser) {
+    const usr = await prisma.access_token.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        token: user.token,
+        validUntil: user.validUntil
+      }
+    });
+    console.log(`${usr.token} => ${usr.name}`)
+  }
+
+  console.log('\n');
 });

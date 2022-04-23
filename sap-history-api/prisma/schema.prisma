@@ -73,7 +73,7 @@ model tier {
 model access_token {
   id           Int            @id @default(autoincrement())
   token        String         @unique(map: "accesstoken_token_uindex") @db.VarChar(16)
-  name         String         @db.VarChar(64)
+  name         String         @unique(map: "access_token_name_uindex") @db.VarChar(64)
   validUntil   DateTime       @db.DateTime(0)
   creation_log creation_log[]
 }
