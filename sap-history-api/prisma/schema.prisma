@@ -12,11 +12,12 @@ model food {
   name         String         @db.VarChar(128)
   description  String?        @db.VarChar(256)
   imageSrc     String?        @db.VarChar(256)
-  stageId      Int
-  stage        stage          @relation(fields: [stageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "food_stage_id_fk")
+  tierId       Int?
+  tier         tier?          @relation(fields: [tierId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "food_tier_id_fk")
+  foodPack     foodPack[]
   petWithStats petWithStats[]
 
-  @@index([stageId], map: "food_stage_id_fk")
+  @@index([tierId], map: "food_tier_id_fk")
 }
 
 model game {
@@ -32,9 +33,10 @@ model game {
 }
 
 model pack {
-  id      Int       @id @default(autoincrement())
-  name    String    @db.VarChar(128)
-  petPack petPack[]
+  id       Int        @id @default(autoincrement())
+  name     String     @db.VarChar(128)
+  foodPack foodPack[]
+  petPack  petPack[]
 }
 
 model pet {
@@ -46,24 +48,43 @@ model pet {
   skillLvl2    String?        @db.VarChar(256)
   skillLvl3    String?        @db.VarChar(256)
   imageSrc     String?        @db.VarChar(256)
-  stageId      Int
-  stage        stage          @relation(fields: [stageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pet_stage_id_fk")
+  tierId       Int
+  tier         tier           @relation(fields: [tierId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pet_tier_id_fk")
   game         game[]
   petPack      petPack[]
   petWithStats petWithStats[]
 
-  @@index([stageId], map: "pet_stage_id_fk")
+  @@index([tierId], map: "pet_tier_id_fk")
+}
+
+model tier {
+  id             Int    @id @unique(map: "tier_id_uindex")
+  name           String @db.VarChar(128)
+  roundAvailable Int?
+  food           food[]
+  pet            pet[]
+}
+
+model foodPack {
+  foodId Int
+  packId Int
+  food   food @relation(fields: [foodId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "foodPack_food_id_fk")
+  pack   pack @relation(fields: [packId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "foodPack_pack_id_fk")
+
+  @@id([foodId, packId])
+  @@unique([foodId, packId], map: "foodPack_pk")
+  @@index([packId], map: "foodPack_pack_id_fk")
 }
 
 model petPack {
   petId  Int
   packId Int
-  pack   pack @relation(fields: [packId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petpack_pack_id_fk")
-  pet    pet  @relation(fields: [petId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petpack_pet_id_fk")
+  pack   pack @relation(fields: [packId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petPack_pack_id_fk")
+  pet    pet  @relation(fields: [petId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petPack_pet_id_fk")
 
   @@id([petId, packId])
   @@unique([petId, packId], map: "petPack_petId_packId")
-  @@index([packId], map: "petpack_pack_id_fk")
+  @@index([packId], map: "petPack_pack_id_fk")
 }
 
 model petWithStats {
@@ -73,29 +94,21 @@ model petWithStats {
   health           Int
   level            Int
   foodId           Int?
-  food             food?              @relation(fields: [foodId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petwithstats_food_id_fk")
-  pet              pet                @relation(fields: [petId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petwithstats_pet_id_fk")
+  food             food?              @relation(fields: [foodId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petWithStats_food_id_fk")
+  pet              pet                @relation(fields: [petId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petWithStats_pet_id_fk")
   petWithStatsGame petWithStatsGame[]
 
-  @@index([foodId], map: "petwithstats_food_id_fk")
-  @@index([petId], map: "petwithstats_pet_id_fk")
+  @@index([foodId], map: "petWithStats_food_id_fk")
+  @@index([petId], map: "petWithStats_pet_id_fk")
 }
 
 model petWithStatsGame {
   petWithStatsId Int
   gameId         Int
-  game           game         @relation(fields: [gameId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petwithstatsgame_game_id_fk")
-  petWithStats   petWithStats @relation(fields: [petWithStatsId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petwithstatsgame_petwithstats_id_fk")
+  game           game         @relation(fields: [gameId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petWithStatsGame_game_id_fk")
+  petWithStats   petWithStats @relation(fields: [petWithStatsId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petWithStatsGame_petWithStats_id_fk")
 
   @@id([petWithStatsId, gameId])
   @@unique([petWithStatsId, gameId], map: "petWithStatsGame_key")
-  @@index([gameId], map: "petwithstatsgame_game_id_fk")
-}
-
-model stage {
-  id             Int    @id @unique(map: "stage_id_uindex")
-  name           String @db.VarChar(128)
-  roundAvailable Int
-  food           food[]
-  pet            pet[]
+  @@index([gameId], map: "petWithStatsGame_game_id_fk")
 }

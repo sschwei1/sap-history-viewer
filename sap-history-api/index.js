@@ -24,9 +24,17 @@ router.use('/api', async (ctx, next) => {
 });
 
 router.get('/api/test', async (ctx) => {
-  const filter = ctx.request.query;
-  console.log('filter', filter);
+  const params = ctx.request.query;
+  console.log('params', params);
+  ctx.body = 'get test success'
 });
+
+router.post('/api/test', async (ctx) => {
+  const params = ctx.request.body;
+  console.log('params', params);
+
+  ctx.body = 'post test success';
+})
 
 app
   .use(bodyParser())
