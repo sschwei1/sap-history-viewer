@@ -21,15 +21,18 @@ model food {
 }
 
 model game {
-  id                  Int                   @id @unique(map: "game_id_uindex")
-  roundEnded          Int
-  healthLeft          Int
-  win                 Boolean
-  petWentForId        Int?
-  pet                 pet?                  @relation(fields: [petWentForId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "game_pet_id_fk")
-  creation_log        creation_log[]
-  pet_with_stats_game pet_with_stats_game[]
+  id             Int              @id @default(autoincrement())
+  roundEnded     Int
+  healthLeft     Int
+  win            Boolean
+  petWentForId   Int?
+  packId         Int?
+  pack           pack?            @relation(fields: [packId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "game_pack_id_fk")
+  pet            pet?             @relation(fields: [petWentForId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "game_pet_id_fk")
+  creation_log   creation_log[]
+  pet_with_stats pet_with_stats[]
 
+  @@index([packId], map: "game_pack_id_fk")
   @@index([petWentForId], map: "game_pet_id_fk")
 }
 
@@ -37,6 +40,7 @@ model pack {
   id        Int         @id @default(autoincrement())
   name      String      @db.VarChar(128)
   food_pack food_pack[]
+  game      game[]
   pet_pack  pet_pack[]
 }
 
@@ -80,10 +84,10 @@ model creation_log {
   gameId        Int?
   message       String       @db.VarChar(256)
   access_token  access_token @relation(fields: [accessTokenId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "creationlog_accesstoken_id_fk")
-  game          game?        @relation(fields: [gameId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "creationlog_game_id_fk")
+  game          game?        @relation(fields: [gameId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "creation_log_game_id_fk")
 
+  @@index([gameId], map: "creation_log_game_id_fk")
   @@index([accessTokenId], map: "creationlog_accesstoken_id_fk")
-  @@index([gameId], map: "creationlog_game_id_fk")
 }
 
 model food_pack {
@@ -109,27 +113,19 @@ model pet_pack {
 }
 
 model pet_with_stats {
-  id                  Int                   @id @unique(map: "petWithStats_id_uindex")
-  petId               Int
-  attack              Int
-  health              Int
-  level               Int
-  foodId              Int?
-  food                food?                 @relation(fields: [foodId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petWithStats_food_id_fk")
-  pet                 pet                   @relation(fields: [petId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petWithStats_pet_id_fk")
-  pet_with_stats_game pet_with_stats_game[]
+  id       Int   @id @default(autoincrement())
+  petId    Int?
+  attack   Int?
+  health   Int?
+  level    Int?
+  foodId   Int?
+  position Int
+  gameId   Int
+  food     food? @relation(fields: [foodId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petWithStats_food_id_fk")
+  game     game  @relation(fields: [gameId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pet_with_stats_game_id_fk")
+  pet      pet?  @relation(fields: [petId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petWithStats_pet_id_fk")
 
+  @@unique([gameId, position], map: "pet_with_stats_slot_uq")
   @@index([foodId], map: "petWithStats_food_id_fk")
   @@index([petId], map: "petWithStats_pet_id_fk")
-}
-
-model pet_with_stats_game {
-  petWithStatsId Int
-  gameId         Int
-  game           game           @relation(fields: [gameId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petWithStatsGame_game_id_fk")
-  pet_with_stats pet_with_stats @relation(fields: [petWithStatsId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "petWithStatsGame_petWithStats_id_fk")
-
-  @@id([petWithStatsId, gameId])
-  @@unique([petWithStatsId, gameId], map: "petWithStatsGame_key")
-  @@index([gameId], map: "petWithStatsGame_game_id_fk")
 }

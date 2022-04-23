@@ -55,7 +55,8 @@ Promise.all(userNames.map(async userName => {
   }));
 
   prisma.access_token.createMany({data: entries}).then(res => {
-    console.log(`[access_token] Successfully added entries!`, res)
+    console.log(`[access_token] Successfully created ${res.count} tokens!`);
+    console.log(entries.map(el => `${el.token} => ${el.name}`).join('\n'));
   }).catch(ex => {
     console.log(`[access_token] Failed to add entries!`, ex);
   });
