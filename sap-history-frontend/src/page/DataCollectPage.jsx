@@ -69,6 +69,8 @@ const DataCollectPage = () => {
     };
 
     setIsLoading(true);
+    setResponse({});
+
     fetch(`/api/wAuth/game`, requestOptions)
       .then(res => res.json())
       .then(res => CheckResponse(res))
