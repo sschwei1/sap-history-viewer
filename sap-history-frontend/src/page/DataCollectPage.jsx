@@ -17,6 +17,8 @@ const DataCollectPage = () => {
   const [accessToken, setAccessToken] = useState();
   const [form] = Form.useForm();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   let accessTokenTimeout = undefined;
 
   const [packSelected, setPackSelected] = useState(1);
@@ -38,11 +40,13 @@ const DataCollectPage = () => {
 
     if (!res.error) {
       obj.payload = res.data ?? 'success';
+      form.resetFields();
     } else {
       obj.error = res.status;
     }
 
     setResponse(res);
+    setIsLoading(false);
     return obj;
   }
 
@@ -64,7 +68,8 @@ const DataCollectPage = () => {
       redirect: 'follow'
     };
 
-    return fetch(`/api/wAuth/game`, requestOptions)
+    setIsLoading(true);
+    fetch(`/api/wAuth/game`, requestOptions)
       .then(res => res.json())
       .then(res => CheckResponse(res))
       .catch(err => ({payload: undefined, error: err.message}));
@@ -350,7 +355,7 @@ const DataCollectPage = () => {
             <Row justify='center'>
               <Col span={20}>
                 <Form.Item>
-                  <Button type='primary' htmlType='submit' style={{width: '100%'}} size='large'>
+                  <Button type='primary' htmlType='submit' style={{width: '100%'}} size='large' loading={isLoading}>
                     Submit
                   </Button>
                 </Form.Item>
