@@ -12,7 +12,10 @@ const HomePage = () => {
         <>
           <Divider />
           <div style={{marginBottom: '20px', fontSize: '20px', padding: '0 50px'}} className={'ant-result-subtitle'}>
-            If you want to contribute to this site, feel free to help us collect data
+            This website is meant to collect all the data of the A-Z challenge and work as a mix of match-history / statistics site
+          </div>
+          <div style={{marginBottom: '20px', fontSize: '20px', padding: '0 50px'}} className={'ant-result-subtitle'}>
+            If you want to contribute to this site, feel free to help us gather data
           </div>
           <Button type="primary" key="console" onClick={() => {navigate('/data/collect')}}>
             Contribute

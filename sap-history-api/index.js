@@ -83,7 +83,7 @@ router.put('/api/wAuth/game', async (ctx) => {
 
   const pets = gameData.petsUsed.map((el, i) => ({
     ...el,
-    position: i,
+    position: i + 1,
     gameId: game.id
   }));
 

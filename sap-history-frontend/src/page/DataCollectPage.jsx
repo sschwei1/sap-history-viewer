@@ -20,6 +20,7 @@ const DataCollectPage = () => {
   let accessTokenTimeout = undefined;
 
   const [packSelected, setPackSelected] = useState(1);
+  const [petsSelected, setPetsSelected] = useState([{petId: null},{petId: null},{petId: null},{petId: null},{petId: null}]);
 
   const [pets, setPets] = useState(petData);
   const [food, setFood] = useState(foodData);
@@ -35,13 +36,10 @@ const DataCollectPage = () => {
       error: undefined
     }
 
-    if(!res.error){
+    if (!res.error) {
       obj.payload = res.data ?? 'success';
-      console.log('success', res);
-    }
-    else{
+    } else {
       obj.error = res.status;
-      console.log('error', res)
     }
 
     setResponse(res);
@@ -49,6 +47,10 @@ const DataCollectPage = () => {
   }
 
   const onSuccessFulSubmit = (data) => {
+    data.petsUsed = data.petsUsed.map(el => {
+      return el.petId ? {...el} : {petId: null}
+    });
+
     let myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
     myHeaders.append('x-auth', accessToken);
@@ -95,7 +97,9 @@ const DataCollectPage = () => {
                 size='large'
                 placeholder='Access Token'
                 prefix={<LockOutlined/>}
-                onChange={(e) => {debounceUpdateAccessKey(e.target.value)}}
+                onChange={(e) => {
+                  debounceUpdateAccessKey(e.target.value)
+                }}
               />
             </Col>
           </Row>
@@ -111,14 +115,14 @@ const DataCollectPage = () => {
           >
             {
               response.payload && (<Row justify='center'>
-                  <Col span={20}>
-                    <Alert
-                      message={response.payload}
-                      type='success'
-                      style={{marginBottom: '20px'}}
-                    />
-                  </Col>
-                </Row>)
+                <Col span={20}>
+                  <Alert
+                    message={response.payload}
+                    type='success'
+                    style={{marginBottom: '20px'}}
+                  />
+                </Col>
+              </Row>)
             }
 
             {
@@ -213,7 +217,9 @@ const DataCollectPage = () => {
                     ]}
                     initialValue={1}
                   >
-                    <Select placeholder='Select pack' onChange={(val) => {setPackSelected(val)}}>
+                    <Select placeholder='Select pack' onChange={(val) => {
+                      setPackSelected(val)
+                    }}>
                       {
                         packs.map((el, i) => (
                           <Option value={el.id} key={i}>{el.name}</Option>
@@ -224,7 +230,7 @@ const DataCollectPage = () => {
                 </Card>
               </Col>
             </Row>
-            <Form.List name='petsUsed' initialValue={[{},{},{},{},{}]}>
+            <Form.List name='petsUsed' initialValue={petsSelected}>
               {(fields) => (
                 <Row justify='center' style={{marginBottom: '20px'}}>
                   {fields.map((el, i) => (
@@ -236,9 +242,6 @@ const DataCollectPage = () => {
                               style={{marginBottom: petStatsMargin}}
                               name={[i, 'petId']}
                               label='🐕 Pet played'
-                              rules={[
-                                {required: true, message: 'Pet is required'}
-                              ]}
                             >
                               <Select
                                 placeholder='Select pet'
@@ -250,7 +253,13 @@ const DataCollectPage = () => {
                                 filterSort={(optionA, optionB) =>
                                   optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
                                 }
+                                onChange={(e) => {
+                                  const newPets = [...petsSelected];
+                                  newPets[i].petId = e;
+                                  setPetsSelected(newPets);
+                                }}
                               >
+                                <Option value={null}>None</Option>
                                 {
                                   pets.map((el, i) => (
                                     <Option value={el.id} key={i}>{el.name}</Option>
@@ -260,77 +269,78 @@ const DataCollectPage = () => {
                             </Form.Item>
                           </Col>
                         </Row>
-                        <Row>
-                          <Col span={24}>
-                            <Form.Item
-                              style={{marginBottom: petStatsMargin}}
-                              label='🍕 Food equipped'
-                              name={[i, 'foodId']}
-                              rules={[
-                                {required: false, message: 'Pet is required'}
-                              ]}
-                            >
-                              <Select
-                                placeholder='Select food'
-                                showSearch={true}
-                                optionFilterProp="children"
-                                filterOption={(input, option) =>
-                                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                }
-                                filterSort={(optionA, optionB) =>
-                                  optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
-                                }
-                              >
-                                {
-                                  food.filter(el => el.equip).map((el, i) => (
-                                    <Option value={el.id} key={i}>{el.name}</Option>
-                                  ))
-                                }
-                              </Select>
-                            </Form.Item>
-                          </Col>
-                        </Row>
-                        <Row>
-                          <Col span={24}>
-                            <Form.Item
-                              style={{marginBottom: petStatsMargin}}
-                              label='⚔️  Attack of pet'
-                              name={[i, 'attack']}
-                              rules={[
-                                {required: true, message: 'Attack is required'},
-                                {type: 'number', max: 50, message: 'Attack can be 50 at max'}
-                              ]}
-                            >
-                              <InputNumber placeholder='Enter Attack' style={{width: '100%'}}/>
-                            </Form.Item>
-                          </Col>
-                          <Col span={24}>
-                            <Form.Item
-                              style={{marginBottom: petStatsMargin}}
-                              label='💓  Health of pet'
-                              name={[i, 'health']}
-                              rules={[
-                                {required: true, message: 'Health is required'},
-                                {type: 'number', max: 50, message: 'Health can be 50 at max'}
-                              ]}
-                            >
-                              <InputNumber placeholder='Enter Health' style={{width: '100%'}}/>
-                            </Form.Item>
-                          </Col>
-                          <Col span={24}>
-                            <Form.Item
-                              style={{marginBottom: petStatsMargin}}
-                              label='🍫 Level of pet'
-                              name={[i, 'level']}
-                              rules={[
-                                {required: true, message: 'Level is required'},
-                                {type: 'number', min: 1, max: 3, message: 'Level needs to be in range of 1 - 3'}
-                              ]}
-                            >
-                              <InputNumber placeholder='Enter Level' style={{width: '100%'}}/>
-                            </Form.Item>
-                          </Col>
-                        </Row>
+                        {
+                          petsSelected[i].petId && (
+                            <Row>
+                              <Col span={24}>
+                                <Form.Item
+                                  style={{marginBottom: petStatsMargin}}
+                                  label='🍕 Food equipped'
+                                  name={[i, 'foodId']}
+                                  rules={[
+                                    {required: false, message: 'Pet is required'}
+                                  ]}
+                                >
+                                  <Select
+                                    placeholder='Select food'
+                                    showSearch={true}
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }
+                                    filterSort={(optionA, optionB) =>
+                                      optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
+                                    }
+                                  >
+                                    {
+                                      food.filter(el => el.equip).map((el, i) => (
+                                        <Option value={el.id} key={i}>{el.name}</Option>
+                                      ))
+                                    }
+                                  </Select>
+                                </Form.Item>
+                              </Col>
+                              <Col span={24}>
+                                <Form.Item
+                                  style={{marginBottom: petStatsMargin}}
+                                  label='⚔️  Attack of pet'
+                                  name={[i, 'attack']}
+                                  rules={[
+                                    {required: true, message: 'Attack is required'},
+                                    {type: 'number', max: 50, message: 'Attack can be 50 at max'}
+                                  ]}
+                                >
+                                  <InputNumber placeholder='Enter Attack' style={{width: '100%'}}/>
+                                </Form.Item>
+                              </Col>
+                              <Col span={24}>
+                                <Form.Item
+                                  style={{marginBottom: petStatsMargin}}
+                                  label='💓  Health of pet'
+                                  name={[i, 'health']}
+                                  rules={[
+                                    {required: true, message: 'Health is required'},
+                                    {type: 'number', max: 50, message: 'Health can be 50 at max'}
+                                  ]}
+                                >
+                                  <InputNumber placeholder='Enter Health' style={{width: '100%'}}/>
+                                </Form.Item>
+                              </Col>
+                              <Col span={24}>
+                                <Form.Item
+                                  style={{marginBottom: petStatsMargin}}
+                                  label='🍫 Level of pet'
+                                  name={[i, 'level']}
+                                  rules={[
+                                    {required: true, message: 'Level is required'},
+                                    {type: 'number', min: 1, max: 3, message: 'Level needs to be in range of 1 - 3'}
+                                  ]}
+                                >
+                                  <InputNumber placeholder='Enter Level' style={{width: '100%'}}/>
+                                </Form.Item>
+                              </Col>
+                            </Row>
+                          )}
                       </Card>
                     </Col>
                   ))}
