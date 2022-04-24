@@ -83,6 +83,7 @@ model creation_log {
   accessTokenId Int
   gameId        Int?
   message       String       @db.VarChar(256)
+  createdAt     DateTime?    @default(now()) @db.DateTime(0)
   access_token  access_token @relation(fields: [accessTokenId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "creationlog_accesstoken_id_fk")
   game          game?        @relation(fields: [gameId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "creation_log_game_id_fk")
 

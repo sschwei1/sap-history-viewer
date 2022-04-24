@@ -41,12 +41,10 @@ router.use('/api/wAuth', async (ctx, next) => {
   const auth = await getAuth(headers);
 
   if(!auth || auth.validUntil < new Date()) {
-    console.log(`Not authorized`);
-    return;
+    throw 'Not Authorized';
   }
 
   ctx.request.auth = auth;
-  console.log(`GL&HF`);
   await next();
 });
 
@@ -64,6 +62,8 @@ router.post('/api/test', async (ctx) => {
 });
 
 router.put('/api/wAuth/game', async (ctx) => {
+  console.log('hello from api');
+
   const gameData = ctx.request.body;
 
   const game = await prisma.game.create({
@@ -99,7 +99,7 @@ router.put('/api/wAuth/game', async (ctx) => {
     }
   })
 
-  ctx.body = 'success';
+  ctx.body = 'Successfully inserted game';
 });
 
 app
